@@ -60,6 +60,8 @@ class DirectRequest implements Framework\SV_WC_Payment_Gateway_API_Request
 
     /**
      * @throws \ReflectionException
+     *
+     * //TODO - Add admin option to specify countries that should erase state and zip fields.
      */
     protected function get_billing_address() : Address
     {
@@ -69,9 +71,11 @@ class DirectRequest implements Framework\SV_WC_Payment_Gateway_API_Request
             'Line1' => $this->get_order()->get_billing_address_1(),
             'Line2' => $this->get_order()->get_billing_address_2(),
             'City' => $this->get_order()->get_billing_city(),
-            'State' => $this->get_order()->get_billing_state(),
+            'State' => (DataHelper::CountryCode($this->get_order()->get_billing_country()) == 780) ?
+                "" : $this->get_order()->get_billing_state(),
             'CountryCode' => DataHelper::CountryCode($this->get_order()->get_billing_country()),
-            'PostalCode' => str_replace([" ","-"], "", trim($this->get_order()->get_billing_postcode())),
+            'PostalCode' => (DataHelper::CountryCode($this->get_order()->get_billing_country()) == 780) ?
+                "" : str_replace([" ","-"], "", trim($this->get_order()->get_billing_postcode())),
             'EmailAddress' => $this->get_order()->get_billing_email(),
             'PhoneNumber' => $this->get_order()->get_billing_phone()
         ]);

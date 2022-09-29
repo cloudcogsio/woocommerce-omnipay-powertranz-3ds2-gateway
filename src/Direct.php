@@ -126,6 +126,14 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
 
                         $this->handled_response = $this->get_api()->handle_postback_response($Response);
 
+                        try {
+                            $this->add_payment_gateway_transaction_data(
+                                $this->get_order($WC_OrderID),
+                                $this->handled_response
+                            );
+                        } catch (\Exception $e) {
+                        }
+
                         $this->process_payment($WC_OrderID); // returns array
 
                         wp_safe_redirect(
@@ -498,6 +506,7 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
             ) ?? null,
             true
         );
+        $order->save_meta_data();
     }
 
     /**
