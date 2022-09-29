@@ -105,12 +105,12 @@ class Plugin extends Framework\SV_WC_Payment_Gateway_Plugin
 
     public function get_documentation_url() : string
     {
-        return 'https://github.com/cloudcogsio/omnipay-powertranz-3ds2-gateway/wiki';
+        return 'https://github.com/cloudcogsio/woocommerce-omnipay-powertranz-3ds2-gateway/wiki';
     }
 
     public function get_support_url() : string
     {
-        return 'https://github.com/cloudcogsio/omnipay-powertranz-3ds2-gateway/issues';
+        return 'https://github.com/cloudcogsio/woocommerce-omnipay-powertranz-3ds2-gateway/issues';
     }
 
     public function get_settings_link($gateway_id = null) : string
