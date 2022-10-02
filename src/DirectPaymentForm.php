@@ -80,13 +80,22 @@ class DirectPaymentForm extends Framework\SV_WC_Payment_Gateway_Payment_Form
                 padding-left: 0px !important;
             }
             #pf-overlay {
-                position: absolute;
-                background-color: rgba(255,255,255,0.5);
+                position: fixed;
+                background-color: rgba(255,255,255,0.95);
                 background-image: url("<?= get_site_url()."/wp-content/plugins/".Plugin::TEXT_DOMAIN."/assets/fac-visa-mc.png"; ?>");
                 background-repeat: no-repeat;
                 background-position: center;
                 text-align: center;
                 top: 0;
+                z-index: 1000;
+            }
+            #pf-overlay p {
+                height: 100%;
+                justify-content: center;
+                align-items: center;
+                display: flex;
+                margin-top: 50px;
+                font-weight: bolder;
             }
         </style>
         <?php
@@ -102,9 +111,16 @@ class DirectPaymentForm extends Framework\SV_WC_Payment_Gateway_Payment_Form
 
         <script>
             (function(){
+                jQuery("form[name='checkout']").off();
                 jQuery("#place_order").click(function(e) {
-                    jQuery("form[name='checkout']").off();
-                    jQuery("#place_order").hide();
+                    jQuery(this).hide();
+
+                    let o = jQuery("<div id='pf-overlay'><p>Please wait...</p></div>")
+                        .width(window.innerWidth).height(window.innerHeight);
+
+                    jQuery("body").prepend(o);
+
+                    return true;
 /*
                     let f = jQuery("#<?= $fieldsetId; ?>");
                     let h = f.outerHeight(true);
@@ -131,7 +147,7 @@ class DirectPaymentForm extends Framework\SV_WC_Payment_Gateway_Payment_Form
                         jQuery("#pf-overlay").fadeOut();
                     },5000);
 */
-                    return true;
+
                 });
             }());
         </script>
