@@ -206,8 +206,8 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
 				    <p style='margin:0px;font-size: small;font-weight: 600'><small>Geolocation</small></p>
 				    <img src=\"".$Geolocation['country_flag']."\" width=\"30\" style=\"width:40px !important;\">
 				    <p style='margin:0px;font-size: x-small'>
-				        <small>".$Geolocation['country_code2']." 
-				        <a target='_blank' href='https://www.ipaddress.com/ipv4/".$Geolocation['ip']."'>".$Geolocation['ip']."</a>
+				        <small>".$Geolocation['country_code2'];
+                print "<a target='_blank' href='https://www.ipaddress.com/".((stripos($Geolocation['ip'],":") > -1) ? "ipv6" : "ipv4")."/".$Geolocation['ip']."'>".$Geolocation['ip']."</a>
 				        </small>
 				    </p>
 				</div>";
