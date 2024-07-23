@@ -3,10 +3,8 @@
 namespace Cloudcogs\Woocommerce\Gateway\PowerTranz;
 
 use Cloudcogs\Woocommerce\Gateway\PowerTranz\Api\OmniPayPowerTranz;
-use GuzzleHttp\Psr7\Response;
 use Omnipay\Omnipay;
 use Omnipay\PowerTranz\Gateway;
-use Omnipay\PowerTranz\Message\Response\CompleteSaleResponse;
 use Omnipay\PowerTranz\Schema\PaymentResponse;
 use Omnipay\PowerTranz\Schema\RiskManagementResponse;
 use SkyVerge\WooCommerce\PluginFramework\v5_10_13 as Framework;
