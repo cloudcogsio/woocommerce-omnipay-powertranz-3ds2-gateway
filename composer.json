@@ -16,7 +16,7 @@
     "3ds2"
   ],
   "description" : "Powertranz 3DS2 Payment Gateway plugin for Woocommerce",
-  "minimum-stability" : "beta",
+  "minimum-stability" : "dev",
   "require": {
     "php" : "^7.4",
     "skyverge/wc-plugin-framework": "5.10.13",
