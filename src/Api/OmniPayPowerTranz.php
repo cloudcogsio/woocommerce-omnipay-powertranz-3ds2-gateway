@@ -7,7 +7,7 @@ use Cloudcogs\Woocommerce\Gateway\PowerTranz\Direct;
 use Omnipay\PowerTranz\Gateway;
 use Omnipay\PowerTranz\Message\Response\AuthResponse;
 use Omnipay\PowerTranz\Schema\PaymentResponse;
-use SkyVerge\WooCommerce\PluginFramework\v5_10_13 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_15_1 as Framework;
 
 class OmniPayPowerTranz extends Framework\SV_WC_API_Base implements Framework\SV_WC_Payment_Gateway_API
 {
@@ -83,7 +83,7 @@ class OmniPayPowerTranz extends Framework\SV_WC_API_Base implements Framework\SV
     public function handle_postback_response(
         PaymentResponse $response,
         string $response_handler = DirectResponse::class
-    ) {
+    ): DirectResponse {
         $this->set_response_handler($response_handler);
         return $this->handle_response($response);
     }

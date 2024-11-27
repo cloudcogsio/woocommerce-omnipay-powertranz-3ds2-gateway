@@ -5,7 +5,7 @@
  * Description: WooCommerce Payment Gateway for First Atlantic Commerce (PowerTranz) 3DS2 (https://firstatlanticcommerce.com)
  * Author: cloudcogs.io
  * Author URI: https://www.cloudcogs.io/
- * Version: 0.1.0
+ * Version: 0.2.0
  * Text Domain: cc-woocommerce-gateway-powertranz
  * Domain Path: /i18n/languages/
  *
@@ -18,8 +18,8 @@
  * @copyright Copyright (c) 2022, cloudcogs.io
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License v3.0
  *
- * WC requires at least: 4.9.2
- * WC tested up to: 6.9.2
+ * WC requires at least: 8.0
+ * WC tested up to: 9.4.2
  */
 
 defined('ABSPATH') or exit;
@@ -42,17 +42,14 @@ class WC_PowerTranz_Loader
     const MINIMUM_WC_VERSION = '4.9.2';
 
     /** SkyVerge plugin framework version used by this plugin */
-    const FRAMEWORK_VERSION = '5.10.13';
+    const FRAMEWORK_VERSION = '5.15.1';
 
     /** the plugin name, for displaying notices */
     const PLUGIN_NAME = 'PowerTranz 3DS2 - WooCommerce Payment Gateway';
 
-
-    /** @var WC_PowerTranz_Loader single instance of this class  */
     private static $instance;
 
-    /** @var array the admin notices to add */
-    private $notices = array();
+    private array $notices = array();
 
 
     /**
@@ -67,12 +64,10 @@ class WC_PowerTranz_Loader
 
         add_action('admin_init', array( $this, 'check_environment' ));
         add_action('admin_init', array( $this, 'add_plugin_notices' ));
-
         add_action('admin_notices', array( $this, 'admin_notices' ), 15);
 
         add_filter('extra_plugin_headers', array( $this, 'add_documentation_header'));
 
-        // if the environment check fails, initialize the plugin
         if ($this->is_environment_compatible()) {
             add_action('plugins_loaded', array( $this, 'init_plugin' ));
         }
@@ -166,8 +161,7 @@ class WC_PowerTranz_Loader
      *
      * @return string
      */
-    public function get_framework_version_namespace()
-    {
+    public function get_framework_version_namespace(): string {
 
         return 'v' . str_replace('.', '_', $this->get_framework_version());
     }
@@ -180,8 +174,7 @@ class WC_PowerTranz_Loader
      *
      * @return string
      */
-    public function get_framework_version()
-    {
+    public function get_framework_version(): string {
 
         return self::FRAMEWORK_VERSION;
     }
@@ -271,8 +264,7 @@ class WC_PowerTranz_Loader
      *
      * @return bool
      */
-    private function plugins_compatible()
-    {
+    private function plugins_compatible(): bool {
 
         return $this->is_wp_compatible() && $this->is_wc_compatible();
     }
@@ -285,8 +277,7 @@ class WC_PowerTranz_Loader
      *
      * @return bool
      */
-    private function is_wp_compatible()
-    {
+    private function is_wp_compatible(): bool {
 
         if (! self::MINIMUM_WP_VERSION) {
             return true;
@@ -303,8 +294,7 @@ class WC_PowerTranz_Loader
      *
      * @return bool
      */
-    private function is_wc_compatible()
-    {
+    private function is_wc_compatible(): bool {
 
         if (! self::MINIMUM_WC_VERSION) {
             return true;
@@ -335,13 +325,14 @@ class WC_PowerTranz_Loader
     /**
      * Adds an admin notice to be displayed.
      *
-     * @since 0.1.0
-     *
      * @param string $slug the slug for the notice
      * @param string $class the css class for the notice
      * @param string $message the notice message
+     *
+     *@since 0.1.0
+     *
      */
-    private function add_admin_notice($slug, $class, $message)
+    private function add_admin_notice( string $slug, string $class, string $message)
     {
 
         $this->notices[ $slug ] = array(
@@ -361,7 +352,7 @@ class WC_PowerTranz_Loader
     public function admin_notices()
     {
 
-        foreach ((array) $this->notices as $notice_key => $notice) {
+        foreach ($this->notices as $notice_key => $notice) {
             ?>
             <div class="<?php echo esc_attr($notice['class']); ?>">
                 <p><?php echo wp_kses($notice['message'], array( 'a' => array( 'href' => array() ) )); ?></p>
@@ -374,15 +365,15 @@ class WC_PowerTranz_Loader
     /**
      * Adds the Documentation URI header.
      *
+     * @param string[] $headers original headers
+     *
+     * @return string[]
      * @internal
      *
      * @since 0.1.0
      *
-     * @param string[] $headers original headers
-     * @return string[]
      */
-    public function add_documentation_header($headers)
-    {
+    public function add_documentation_header( array $headers): array {
 
         $headers[] = 'Documentation URI';
 
@@ -399,8 +390,7 @@ class WC_PowerTranz_Loader
      *
      * @return bool
      */
-    private function is_environment_compatible()
-    {
+    private function is_environment_compatible(): bool {
 
         return version_compare(PHP_VERSION, self::MINIMUM_PHP_VERSION, '>=');
     }
@@ -413,8 +403,7 @@ class WC_PowerTranz_Loader
      *
      * @return string
      */
-    private function get_environment_message()
-    {
+    private function get_environment_message(): string {
 
         return sprintf(
             'The minimum PHP version required for this plugin is %1$s. You are running %2$s.',

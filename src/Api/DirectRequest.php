@@ -12,7 +12,7 @@ use Omnipay\PowerTranz\Schema\Source;
 use Omnipay\PowerTranz\Schema\ThreeDSecureRequestData;
 use Omnipay\PowerTranz\Support\DataHelper;
 use Ramsey\Uuid\Uuid;
-use SkyVerge\WooCommerce\PluginFramework\v5_10_13 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_15_1 as Framework;
 use Omnipay\PowerTranz\Message\AbstractRequest as PowerTranzRequest;
 
 class DirectRequest implements Framework\SV_WC_Payment_Gateway_API_Request

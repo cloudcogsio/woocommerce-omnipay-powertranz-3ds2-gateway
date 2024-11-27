@@ -44,7 +44,7 @@ class Transaction extends DirectRequest
         $Auth = new AuthRequest([
             'TransactionIdentifier' => $this->generate_transaction_identifier(),
             'OrderIdentifier' => $this->generate_order_identifier(),
-            'TotalAmount' => $this->get_order()->payment_total,
+            'TotalAmount' => $this->get_order()->get_total(),
             'CurrencyCode' => DataHelper::CurrencyCode($this->get_order()->get_currency()),
             'ThreeDSecure' => $this->WC_Gateway->is_three_ds_enabled(),
             'AddressVerification' => $this->WC_Gateway->is_avs_requested(),

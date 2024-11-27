@@ -2,13 +2,13 @@
 
 namespace Cloudcogs\Woocommerce\Gateway\PowerTranz;
 
-use SkyVerge\WooCommerce\PluginFramework\v5_10_13 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_15_1 as Framework;
 
 class Plugin extends Framework\SV_WC_Payment_Gateway_Plugin
 {
 
     /** plugin version number */
-    const VERSION = '0.1.0';
+    const VERSION = '0.2.0';
 
     /** plugin id */
     const PLUGIN_ID = 'cc_woocommerce_gateway_powertranz';
@@ -45,13 +45,20 @@ class Plugin extends Framework\SV_WC_Payment_Gateway_Plugin
                 ],
                 'require_ssl' => true,
                 'supports' => [
-                    self::FEATURE_CAPTURE_CHARGE
-                ]
+                    self::FEATURE_CAPTURE_CHARGE,
+                ],
+                'supported_features' => [
+                    'hpos'   => true,
+                    'blocks' => [
+                        'cart'     => false,
+                        'checkout' => false,
+                    ],
+                ],
             ]
         );
     }
 
-    public function add_admin_notices()
+    public function add_admin_notices(): void
     {
         $credit_card_settings = get_option('woocommerce_'.self::CREDIT_CARD_GATEWAY_ID_DIRECT.'_settings');
         if (! $this->is_plugin_settings()) {
@@ -88,18 +95,16 @@ class Plugin extends Framework\SV_WC_Payment_Gateway_Plugin
         }
     }
 
-    public function get_plugin_file()
+    public function get_plugin_file(): string
     {
         return 'cc-woocommerce-gateway-powertranz/cc-woocommerce-gateway-powertranz.php';
     }
 
-    protected function get_file()
-    {
+    protected function get_file(): string {
         return __FILE__;
     }
 
-    public function get_plugin_name()
-    {
+    public function get_plugin_name(): string {
         return __(\WC_PowerTranz_Loader::PLUGIN_NAME, self::TEXT_DOMAIN);
     }
 
@@ -113,12 +118,12 @@ class Plugin extends Framework\SV_WC_Payment_Gateway_Plugin
         return 'https://github.com/cloudcogsio/woocommerce-omnipay-powertranz-3ds2-gateway/issues';
     }
 
-    public function get_settings_link($gateway_id = null) : string
+    public function get_settings_link($plugin_id = null) : string
     {
         return sprintf(
             '<a href="%s">%s</a>',
-            $this->get_settings_url($gateway_id),
-            self::CREDIT_CARD_GATEWAY_ID_DIRECT === $gateway_id ?
+            $this->get_settings_url($plugin_id),
+            self::CREDIT_CARD_GATEWAY_ID_DIRECT === $plugin_id ?
                 __('Configure Gateway', self::TEXT_DOMAIN) : "Configure"
         );
     }

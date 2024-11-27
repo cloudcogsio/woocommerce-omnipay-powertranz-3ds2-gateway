@@ -7,7 +7,8 @@ use Omnipay\Omnipay;
 use Omnipay\PowerTranz\Gateway;
 use Omnipay\PowerTranz\Schema\PaymentResponse;
 use Omnipay\PowerTranz\Schema\RiskManagementResponse;
-use SkyVerge\WooCommerce\PluginFramework\v5_10_13 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_15_1 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_15_1\SV_WC_API_Exception;
 
 class Direct extends Framework\SV_WC_Payment_Gateway_Direct
 {
@@ -67,7 +68,9 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
             'woocommerce_api_' . Plugin::CREDIT_CARD_GATEWAY_ID_DIRECT . '_process_payment',
             [$this, 'gateway_callback']
         );
-        add_action('add_meta_boxes_shop_order', array( $this, 'add_box' ));
+
+
+        add_action('add_meta_boxes', array( $this, 'add_box' ));
     }
 
     /**
@@ -89,10 +92,9 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
 
     /**
      * @return void
-     * @throws Framework\SV_WC_API_Exception
-     * @throws Framework\SV_WC_Plugin_Exception
      * @throws \JsonException
      * @throws \ReflectionException
+     * @throws SV_WC_API_Exception
      */
     public function gateway_callback()
     {
@@ -151,110 +153,118 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
 
     public function add_box()
     {
-        global $post;
-        $order = $this->get_order($post->ID);
+        $screen = class_exists( '\Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' )
+                  && wc_get_container()
+                      ->get( \Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController::class )
+                      ->custom_orders_table_usage_is_enabled()
+            ? wc_get_page_screen_id( 'shop-order' )
+            : 'shop_order';
 
-        if ($order->get_payment_method() == $this->id) {
-            add_meta_box($this->get_id_dasherized() . 'risk-management', 'Risk Management', [
-                $this,
-                'create_box_content_risk_management'
-            ], 'shop_order', 'side', 'high');
-        }
+        add_meta_box($this->get_id_dasherized() . '-risk-management', 'Risk Management',
+            [$this,'create_box_content_risk_management'], $screen, 'side', 'high');
+
     }
 
-    public function create_box_content_risk_management()
+    /**
+     * @throws \ReflectionException
+     */
+    public function create_box_content_risk_management($object)
     {
-        global $post;
-        $order = $this->get_order($post->ID);
+        $order = is_a( $object, 'WP_Post' ) ? wc_get_order( $object->ID ) : $object;
 
-        $RiskData = json_decode($order->get_meta($this->id.'_risk_management'), true);
-        $Geolocation = json_decode($order->get_meta($this->id.'_ip_geolocation'), true);
-        $Binlist = json_decode($order->get_meta($this->id.'_bin_info'), true);
+        if ($order->get_payment_method() == $this->id) {
 
-        if (is_array($RiskData)) {
-            $RiskManagement = new RiskManagementResponse($RiskData);
-            print "<img style=\"float:right;margin-top:-1px;margin-right:10px;clear:left;width:50px !important;\" 
-            src=\"".get_site_url()."/wp-content/plugins/".Plugin::TEXT_DOMAIN."/assets/3ds2-shield.png\">";
+            $RiskData    = json_decode( $order->get_meta( $this->id . '_risk_management' ), true );
+            $Geolocation = json_decode( $order->get_meta( $this->id . '_ip_geolocation' ), true );
+            $Binlist     = json_decode( $order->get_meta( $this->id . '_bin_info' ), true );
 
-            if (is_array($Binlist)) {
-                print "<div style=\"float:right;margin-top:2px;clear:right;width:72px;text-align: center\">
-				<img src=\"".get_site_url()."/wp-content/plugins/".Plugin::TEXT_DOMAIN."/vendor/skyverge/wc-plugin-framework/woocommerce/payment-gateway/assets/images/card-".$Binlist['scheme'].".svg'\" width=\"30\" style=\"width:30px !important;\">
-				<img src=\"https://ipgeolocation.io/static/flags/".strtolower($Binlist['country']['alpha2'])."_64.png\" width=\"30\" style=\"width:30px !important;\">
+            if ( is_array( $RiskData ) ) {
+                $RiskManagement = new RiskManagementResponse( $RiskData );
+                print "<img style=\"float:right;margin-top:-1px;margin-right:10px;clear:left;width:50px !important;\" 
+            src=\"" . get_site_url() . "/wp-content/plugins/" . Plugin::TEXT_DOMAIN . "/assets/3ds2-shield.png\">";
+
+                if ( is_array( $Binlist ) ) {
+                    print "<div style=\"float:right;margin-top:2px;clear:right;width:72px;text-align: center\">
+				<img src=\"" . get_site_url() . "/wp-content/plugins/" . Plugin::TEXT_DOMAIN . "/vendor/skyverge/wc-plugin-framework/woocommerce/payment-gateway/assets/images/card-" . $Binlist['scheme'] . ".svg'\" width=\"30\" style=\"width:30px !important;\" alt=\"\">
+				<img src=\"https://ipgeolocation.io/static/flags/" . strtolower( $Binlist['country']['alpha2'] ) . "_64.png\" width=\"30\" style=\"width:30px !important;\" alt=\"\">
 				";
 
-                if (isset($Binlist['bank']['name'])) {
-                    print "
-                    <p style='margin:0px;font-size: x-small;line-height: 1'><small>
-                    <a target='_blank' href='https://".($Binlist['bank']['url'] ?? '#')."'>".
-                          $Binlist['country']['alpha2'].", ".explode(" ", $Binlist['bank']['name'])[0]."
+                    if ( isset( $Binlist['bank']['name'] ) ) {
+                        print "
+                    <p style='margin:0;font-size: x-small;line-height: 1'><small>
+                    <a target='_blank' href='https://" . ( $Binlist['bank']['url'] ?? '#' ) . "'>" .
+                              $Binlist['country']['alpha2'] . ", " . explode( " ", $Binlist['bank']['name'] )[0] . "
                     </a>
                     </small></p>
                     ";
-                } else {
-                    print "<p style='margin:0px;font-size: x-smallline-height: 1'>
-                    <small>".$Binlist['country']['name']."</small></p>";
+                    } else {
+                        print "<p style='margin:0;font-size: x-smallline-height: 1'>
+                    <small>" . $Binlist['country']['name'] . "</small></p>";
+                    }
+
+                    print "</div>";
                 }
 
-                print "</div>";
-            }
-
-            if (is_array($Geolocation)) {
-                print "
+                if ( is_array( $Geolocation ) ) {
+                    print "
                 <div style=\"float:right;margin-top:10px;clear:right;width:72px;text-align: center\">
-				    <p style='margin:0px;font-size: small;font-weight: 600'><small>Geolocation</small></p>
-				    <img src=\"".$Geolocation['country_flag']."\" width=\"30\" style=\"width:40px !important;\">
-				    <p style='margin:0px;font-size: x-small'>
-				        <small>".$Geolocation['country_code2'];
-                print "<a target='_blank' href='https://www.ipaddress.com/".((stripos($Geolocation['ip'],":") > -1) ? "ipv6" : "ipv4")."/".$Geolocation['ip']."'>".$Geolocation['ip']."</a>
+				    <p style='margin:0;font-size: small;font-weight: 600'><small>Geolocation</small></p>
+				    <img src=\"" . $Geolocation['country_flag'] . "\" width=\"30\" style=\"width:40px !important;\" alt=\"\">
+				    <p style='margin:0;font-size: x-small'>
+				        <small>" . $Geolocation['country_code2'];
+                    print "<a target='_blank' href='https://www.ipaddress.com/" . ( ( stripos( $Geolocation['ip'], ":" ) > - 1 ) ? "ipv6" : "ipv4" ) . "/" . $Geolocation['ip'] . "'> view</a>
 				        </small>
 				    </p>
 				</div>";
-            }
-
-            print "<ul>";
-
-            if (isset($RiskManagement->ThreeDSecure)) {
-                $data = $RiskManagement->ThreeDSecure->toArray();
-
-                print "<li><dl>";
-                foreach ($data as $h => $v) {
-                    if (in_array($h, ["Cavv", "Xid", "DsTransId"])) {
-                        continue;
-                    }
-                    print "<dt style='font-weight: 600'>$h</dt>";
-                    print "<dd style='margin: 0px;margin-bottom:5px;'>$v</dd>";
                 }
-                print "</dl></li>";
-            }
 
-            if ($this->is_avs_requested()) {
-                print "<li style='border-top: 1px solid #000;'>
+                print "<ul>";
+
+                if ( isset( $RiskManagement->ThreeDSecure ) ) {
+                    $data = $RiskManagement->ThreeDSecure->toArray();
+
+                    print "<li><dl>";
+                    foreach ( $data as $h => $v ) {
+                        if ( in_array( $h, [ "Cavv", "Xid", "DsTransId" ] ) ) {
+                            continue;
+                        }
+                        print "<dt style='font-weight: 600'>$h</dt>";
+                        print "<dd style='margin: 0 0 5px;'>$v</dd>";
+                    }
+                    print "</dl></li>";
+                }
+
+                if ( $this->is_avs_requested() ) {
+                    print "<li style='border-top: 1px solid #000;'>
                            <dl>
                                <dt style='font-weight: 600'>AVS Response Code</dt>
-                               <dd style='margin: 0px;'>"
-                                .(($RiskManagement->AvsResponseCode) ?? "<small style='color: crimson'>
-                                <strong><em>AVS Response Unavailable</em></strong></small>")."
+                               <dd style='margin: 0;'>"
+                          . ( ( $RiskManagement->AvsResponseCode ) ?? "<small style='color: crimson'>
+                                <strong><em>AVS Response Unavailable</em></strong></small>" ) . "
                                </dd>
                            </dl>
                        </li>";
-            }
+                }
 
-            if (isset($RiskManagement->CvvResponseCode)) {
-                print "<li style='border-top: 1px solid #000;'>
+                if ( isset( $RiskManagement->CvvResponseCode ) ) {
+                    print "<li style='border-top: 1px solid #000;'>
                            <dl>
                                <dt style='font-weight: 600'>CVV Response Code</dt>
-                               <dd style='margin: 0px;'>"
-                                .(($RiskManagement->CvvResponseCode) ?? "<small style='color: crimson'>
-                                <strong><em>AVS Response Unavailable</em></strong></small>")."
+                               <dd style='margin: 0;'>"
+                          . ( ( $RiskManagement->CvvResponseCode ) ?? "<small style='color: crimson'>
+                                <strong><em>AVS Response Unavailable</em></strong></small>" ) . "
                                </dd>
                            </dl>
                        </li>";
-            }
+                }
 
-            print "</ul>";
-        } else {
-            print "<small style='color: crimson'><strong><em>Risk Data Unavailable</em></strong></small>";
+                print "</ul>";
+
+                return;
+            }
         }
+
+        print "<small style='color: crimson'><strong><em>Risk Data Unavailable</em></strong></small>";
     }
 
     /**
@@ -291,7 +301,7 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
         if ($this->is_test_environment() &&
             ($test_amount =
                 Framework\SV_WC_Helper::get_posted_value('wc-' . $this->get_id_dasherized() . '-test-amount'))) {
-            $order->payment_total = Framework\SV_WC_Helper::number_format($test_amount);
+            $order->payment_total = Framework\Helpers\NumberHelper::format($test_amount);
         }
 
         return $this->order = $order;
@@ -399,10 +409,9 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
     /**
      * Get the API object
      *
-     * @return OmniPayPowerTranz|Framework\SV_WC_Payment_Gateway_API
+     * @return OmniPayPowerTranz
      */
-    public function get_api()
-    {
+    public function get_api(): OmniPayPowerTranz {
         if (isset($this->api)) {
             return $this->api;
         }
@@ -580,13 +589,15 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
                 }
 
                 if ($this->ipgeolocation_api != null) {
-                    $ip = get_post_meta($order->get_id(), '_customer_ip_address', true);
+                    $ip = $order->get_meta('_customer_ip_address', true);
 
-                    $location_data = file_get_contents(
-                        'https://api.ipgeolocation.io/ipgeo?apiKey='.$this->ipgeolocation_api.'&ip='.$ip
-                    );
+                    if (is_string($ip)) {
+                        $location_data = file_get_contents(
+                            'https://api.ipgeolocation.io/ipgeo?apiKey=' . $this->ipgeolocation_api . '&ip=' . $ip
+                        );
 
-                    $order->add_meta_data($this->id.'_ip_geolocation', utf8_encode($location_data), true);
+                        $order->add_meta_data( $this->id . '_ip_geolocation', utf8_encode( $location_data ), true );
+                    }
                 }
             }
         }

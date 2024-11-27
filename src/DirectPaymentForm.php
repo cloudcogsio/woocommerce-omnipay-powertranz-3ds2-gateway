@@ -2,17 +2,10 @@
 
 namespace Cloudcogs\Woocommerce\Gateway\PowerTranz;
 
-use SkyVerge\WooCommerce\PluginFramework\v5_10_13 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_15_1 as Framework;
 
 class DirectPaymentForm extends Framework\SV_WC_Payment_Gateway_Payment_Form
 {
-
-    public function __construct($gateway)
-    {
-        $this->gateway = $gateway;
-        $this->add_hooks();
-    }
-
     /**
      * Render a test amount input field that can be used to override the order total
      * when using the gateway in sandbox mode. The order total can then be set to

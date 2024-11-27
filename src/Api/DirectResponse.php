@@ -3,7 +3,7 @@
 namespace Cloudcogs\Woocommerce\Gateway\PowerTranz\Api;
 
 use Omnipay\PowerTranz\Message\AbstractResponse;
-use SkyVerge\WooCommerce\PluginFramework\v5_10_13 as Framework;
+use SkyVerge\WooCommerce\PluginFramework\v5_15_1 as Framework;
 
 class DirectResponse implements
     Framework\SV_WC_API_Response,
