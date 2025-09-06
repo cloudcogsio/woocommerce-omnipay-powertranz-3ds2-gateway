@@ -91,9 +91,14 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
     }
 
     /**
+     * Processes the gateway callback response and handles the appropriate actions based on the transaction type.
+     *
+     * This method is triggered during the postback from the payment gateway. It decodes and validates the response,
+     * executes the appropriate actions such as completing authorization or purchase, updates the order with transaction
+     * data, and redirects to the order confirmation page upon successful completion. For invalid responses or errors,
+     * it redirects the customer back to the checkout page with an error notice.
+     *
      * @return void
-     * @throws \JsonException
-     * @throws \ReflectionException
      * @throws SV_WC_API_Exception
      */
     public function gateway_callback()
@@ -105,14 +110,35 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
             if (is_array($postData) && isset($postData['TransactionType'])) {
                 switch ($postData['TransactionType']) {
                     case 1:
-                        $Response = $PowerTranzGateway->completeAuthorize()->send();
+                        try {
+                            $Response = $PowerTranzGateway->completeAuthorize()->send();
+                        } catch (\Exception $e) {
+                            error_log('PowerTranz completeAuthorize error: '.$e->getMessage());
+                            wc_add_notice('Payment processing error: Invalid Gateway Response', 'error');
+
+                            // Redirect to checkout page
+                            wp_safe_redirect(get_site_url()."/checkout/");
+                            exit;
+                        }
                         break;
 
                     case 2:
-                        $Response = $PowerTranzGateway->completePurchase()->send();
+                        try {
+                            $Response = $PowerTranzGateway->completePurchase()->send();
+                        } catch (\Exception $e) {
+                            error_log('PowerTranz completePurchase error: '.$e->getMessage());
+                            wc_add_notice('Payment processing error: Invalid Gateway Response', 'error');
+
+                            // Redirect to checkout page
+                            wp_safe_redirect(get_site_url()."/checkout/");
+                            exit;
+                        }
                         break;
 
                     default:
+                        error_log('PowerTranz Payment error: Transaction Type '.$postData['TransactionType']);;
+                        wc_add_notice('Payment processing error: Invalid Gateway Response', 'error');
+
                         wp_safe_redirect(get_site_url()."/checkout/");
                         exit;
                 }
@@ -146,7 +172,9 @@ class Direct extends Framework\SV_WC_Payment_Gateway_Direct
         }
 
         // Not a valid post back, redirect to checkout page
-        //echo "<script>window.parent.location = '".get_site_url()."/checkout/';</script>";
+        error_log('PowerTranz Payment error: Invalid POST data');
+        wc_add_notice('Payment processing error: Invalid Response', 'error');
+
         wp_safe_redirect(get_site_url()."/checkout/");
         exit;
     }
