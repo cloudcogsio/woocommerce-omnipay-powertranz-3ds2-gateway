@@ -18,11 +18,9 @@
   "description" : "Powertranz 3DS2 Payment Gateway plugin for Woocommerce",
   "minimum-stability" : "dev",
   "require": {
-    "php" : "^7.4",
-    "skyverge/wc-plugin-framework": "^5.15.1",
-    "cloudcogsio/omnipay-powertranz-3ds2-gateway": "dev-php-7x",
-    "guzzlehttp/psr7": "^2.7.0",
-    "ext-json": "*"
+    "php" : "8.*",
+    "skyverge/wc-plugin-framework": "5.15.1",
+    "cloudcogsio/omnipay-powertranz-3ds2-gateway": "dev-master"
   },
   "autoload" : {
     "psr-4" : {
