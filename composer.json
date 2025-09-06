@@ -1,6 +1,6 @@
 {
   "name" : "cloudcogsio/woocommerce-omnipay-powertranz-3ds2-gateway",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "authors" : [{
     "name" : "Ricardo Assing",
     "email" : "ricardo@tsiana.ca"

@@ -8,7 +8,7 @@ class Plugin extends Framework\SV_WC_Payment_Gateway_Plugin
 {
 
     /** plugin version number */
-    const VERSION = '0.2.1';
+    const VERSION = '1.0.0';
 
     /** plugin id */
     const PLUGIN_ID = 'cc_woocommerce_gateway_powertranz';

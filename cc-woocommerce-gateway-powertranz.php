@@ -5,7 +5,7 @@
  * Description: WooCommerce Payment Gateway for First Atlantic Commerce (PowerTranz) 3DS2 (https://firstatlanticcommerce.com)
  * Author: cloudcogs.io
  * Author URI: https://www.cloudcogs.io/
- * Version: 0.2.1
+ * Version: 1.0.0
  * Text Domain: cc-woocommerce-gateway-powertranz
  * Domain Path: /i18n/languages/
  *
@@ -33,7 +33,7 @@ class WC_PowerTranz_Loader
 {
 
     /** minimum PHP version required by this plugin */
-    const MINIMUM_PHP_VERSION = '7.4';
+    const MINIMUM_PHP_VERSION = '8.0';
 
     /** minimum WordPress version required by this plugin */
     const MINIMUM_WP_VERSION = '5.2';

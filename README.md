@@ -23,7 +23,7 @@ The plugin supports EMV 3D-Secure versions 2.x with fallback to 3DS version 1.0,
 
 ## Requirements
 
-- PHP 7.4 or higher (PHP 8.x recommended)
+- PHP 8.0 or higher
 - WordPress 5.2 or higher
 - WooCommerce 4.9.2 or higher
 - SSL certificate (HTTPS) for your website
@@ -59,7 +59,7 @@ This plugin follows [Semantic Versioning](https://semver.org/). The version form
 - MINOR version for functionality added in a backward compatible manner
 - PATCH version for backward compatible bug fixes
 
-Current version: 0.2.1
+Current version: 1.0.0
 
 ## Support
 
@@ -70,9 +70,3 @@ For support, please visit:
 ## License
 
 This plugin is licensed under the GNU General Public License v3.0. See the LICENSE file for details.
-
-## Credits
-
-- Developed by [cloudcogs.io](https://www.cloudcogs.io/)
-- Built on the SkyVerge WooCommerce Plugin Framework
-- Uses the Omnipay PowerTranz 3DS2 Gateway package
